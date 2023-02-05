@@ -18,6 +18,10 @@ if($_GET){
         $consulta = 'SELECT DISTINCT(Comunidad) FROM `materias`;';
     }
 
+    if(isset($_GET['materia'])){
+        $consulta = 'SELECT DISTINCT(nombre) FROM `materias`;';
+    }
+
     if(!empty($_GET['universidad'])){
         $consulta = "SELECT titulo,N_Corte FROM `corte` where Universidad LIKE '%".$_GET['universidad']."%';";
 
