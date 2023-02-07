@@ -2,25 +2,43 @@ export default class FormOrienta extends HTMLElement{
     #template=
     `
     <style>
-    fieldset,
-    #tDivAsignaturas{
-        display:flex;
-        flex-direction: column;
-        width:0;
-        gap:10px
+    
+    .añadir{
+        margin-top:10px;
+        display:grid;
+        place-content:center;
     }
-    a{
+
+    .datos-academicos,
+    .datos-ebau,
+    #tDivAsignaturas>div{
+        display:grid;
+        grid-template-columns:auto auto;
+        gap:20px;
+        margin-bottom:10px;
+    }
+    select,input{
+        width:100%;
+    }
+    select{
         text-align:center;
     }
+    .selectores>select{
+        margin-bottom:10px;
 
+    }
    
     </style>
-    <fieldset>
+    <fieldset class="datos-academicos">
+        <legend>Datos académidos</legend>
+        <label>Nota media de bachillerato</label>
+        <input type="number">
+        <label>Nota fase general EBAU</label>
+        <input type="number">
+    </fieldset>
+    <fieldset class="datos-ebau">
 
         <legend>Notas de la EBAU</legend>
-        <select id='selComunidades'>
-            <option disabled selected>-- Selecciona comunidad --</option>
-        </select>
         
         <div id='tDivAsignaturas'>
 
@@ -51,14 +69,24 @@ export default class FormOrienta extends HTMLElement{
                 <input type='number' placeholder='Introduce tu nota'>
             </div>
 
+            <div class='añadir'>
+                <a href='#' id="tPulsar">
+                    <img src="./icono.png" width=20 data-contador='1'>
+                </a>
+            </div>
+            
         </div>
-        <a href='#' id="tPulsar">
-            <img src="./icono.png" width=20 data-contador='1'>
-        </a>
         
-        <select id='selUniversidad'>
+        
+        <div class='selectores'>
+            <select id='selComunidades'>
+                <option disabled selected>-- Selecciona comunidad --</option>
+            </select>
+
+            <select id='selUniversidad'>
                 <option disabled selected>-- Selecciona universidad--</option>
-        </select>
+            </select>
+        </div>
     </fieldset>
     `
 
