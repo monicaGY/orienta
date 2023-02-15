@@ -10,8 +10,7 @@ export default class FormOrienta extends HTMLElement{
     }
 
     .datos-academicos,
-    .datos-ebau,
-    #tDivAsignaturas>div{
+    {
         display:grid;
         grid-template-columns:auto auto;
         gap:20px;
@@ -27,46 +26,58 @@ export default class FormOrienta extends HTMLElement{
         margin-bottom:10px;
 
     }
-   
+    #tDivMensaje{
+        text-size:30px;
+        font-weight: bold;
+        text-align:center;
+    }
     </style>
+
+    <h1>Calcular nota EBAU</h1>
     <fieldset class="datos-academicos">
         <legend>Datos académidos</legend>
         <label>Nota media de bachillerato</label>
-        <input type="number">
+        <input type="number" class='notaBch' value='3'>
         <label>Nota fase general EBAU</label>
-        <input type="number">
+        <input type="number" class="notaFG" value='6'>
     </fieldset>
     <fieldset class="datos-ebau">
-
+        1 - Selecciona comunidad
         <legend>Notas de la EBAU</legend>
-        
+        <div class='selectores'>
+            <select id='selComunidades'>
+                <option disabled selected>-- Selecciona comunidad --</option>
+            </select>
+        </div>
+        <br>
+        2 - Introduce la nota de las materias examinadas (Fase específica)
         <div id='tDivAsignaturas'>
-
+        
             <div> 
                 <select class='selMaterias' >
                         <option disabled selected>-- Selecciona materia --</option>
                 </select>
-                <input type='number' placeholder='Introduce tu nota'>
+                <input type='number' class="notaAsignatura" value='7' placeholder='Introduce tu nota'>
             </div>
 
             <div class="materia" hidden='hidden'> 
                 <select class='selMaterias' >
                         <option disabled selected>-- Selecciona materia --</option>
                 </select>
-                <input type='number' placeholder='Introduce tu nota'>
+                <input type='number' class="notaAsignatura" value="3" placeholder='Introduce tu nota'>
             </div>
             <div class="materia" hidden='hidden'> 
                 <select class='selMaterias' >
                         <option disabled selected>-- Selecciona materia --</option>
                 </select>
-                <input type='number' placeholder='Introduce tu nota'>
+                <input type='number' class="notaAsignatura" placeholder='Introduce tu nota'>
             </div>
 
             <div class="materia" hidden='hidden' id="ultima-asignatura"> 
                 <select class='selMaterias' >
                         <option disabled selected>-- Selecciona materia --</option>
                 </select>
-                <input type='number' placeholder='Introduce tu nota'>
+                <input type='number' class="notaAsignatura" placeholder='Introduce tu nota'>
             </div>
 
             <div class='añadir'>
@@ -76,18 +87,12 @@ export default class FormOrienta extends HTMLElement{
             </div>
             
         </div>
+        <br>
+        <input type="submit" id="tInpEnviar">
         
-        
-        <div class='selectores'>
-            <select id='selComunidades'>
-                <option disabled selected>-- Selecciona comunidad --</option>
-            </select>
-
-            <select id='selUniversidad'>
-                <option disabled selected>-- Selecciona universidad--</option>
-            </select>
-        </div>
     </fieldset>
+
+    <div id="tDivMensaje"></div>
     `
 
     #shadowRoot
@@ -99,23 +104,38 @@ export default class FormOrienta extends HTMLElement{
     }
 
     async connectedCallback() {
-        await this.construirSelectUnisersidades()
+        
         await this.construirSelectComunidades()
-        await this.construirSelectMaterias()
 
-        this.añadirAsignaturas()
+        this.#shadowRoot.querySelector('#selComunidades').addEventListener('change', async e => {
+            await this.construirSelectMaterias(e.target.value)
+            this.añadirAsignaturas()
+        })
+
+
+        this.#shadowRoot.querySelector('#tInpEnviar').addEventListener('click', e => {
+            const notas = this.reccogerNotasFaseEspecifica();
+            const notaEBAU = this.calcularEBAU(notas);
+            // this.#shadowRoot.querySelector('#tDivMensaje').textContent=`Su nota de EBAU es: ${notaEBAU}`
+            setTimeout(() => {
+                window.location = `./view/orientaInformacion.html?notaEBAU=${notaEBAU}`;
+            }, 3000);
+        })
+
 
     }
     async construirSelectComunidades(){
         try{
-            const response = await fetch("http://localhost/00_universidad/rest.php?comunidad")
+            const response = await fetch("http://localhost/00_universidad/rest.php?comunidades")
             const data = await response.json()
 
             const nSelect = this.#shadowRoot.querySelector('#selComunidades')
-            data.forEach(data => {
+            data.forEach(comunidad => {
+
                 const nOpt = document.createElement('option');
-                nOpt.value = data.Comunidad;
-                nOpt.innerText = data.Comunidad;
+                nOpt.value = comunidad.Codigo;
+                // nOpt.setAttribute('id',comunidad.Codigo)
+                nOpt.innerText = comunidad.Nombre;
                 nSelect.appendChild(nOpt);
             });
         }catch(error){
@@ -124,31 +144,14 @@ export default class FormOrienta extends HTMLElement{
     }
 
 
-    async construirSelectUnisersidades(){
-        try{
+    
 
-            //la ruta: en el fichero de las consultas
-            const response=await fetch('http://localhost/00_universidad/rest.php?universidad')
+
+    async construirSelectMaterias(comunidad){
+        try{
+            const response = await fetch(`http://localhost/00_universidad/rest.php?comunidad=${comunidad}`)
             const data = await response.json()
 
-            const nSelect = this.#shadowRoot.querySelector('#selUniversidad')
-            data.forEach(data => {
-                const nOpt = document.createElement('option');
-                nOpt.value = data.Universidad;
-                nOpt.innerText = data.Universidad;
-                nSelect.appendChild(nOpt);
-            });
-
-        }catch(error){
-            console.error(`Recuperar Universidad ${error}`)
-        }
-    }
-
-
-    async construirSelectMaterias(){
-        try{
-            const response = await fetch('http://localhost/00_universidad/rest.php?materia')
-            const data = await response.json()
             const nSelects = this.#shadowRoot.querySelectorAll('.selMaterias')
         
             
@@ -156,8 +159,9 @@ export default class FormOrienta extends HTMLElement{
 
                 for (const select of nSelects) {
                     const nOpt = document.createElement('option');
-                    nOpt.value = dato.nombre;
-                    nOpt.innerText = dato.nombre;
+                    nOpt.value = dato.Nombre;
+                    nOpt.innerText = dato.Nombre;
+                    nOpt.setAttribute('id',dato.Codigo)
                     select.appendChild(nOpt);
                 }
                 
@@ -181,7 +185,7 @@ export default class FormOrienta extends HTMLElement{
                     materia.removeAttribute("hidden")
 
                     if(materia.getAttribute('id') === 'ultima-asignatura'){
-                        this.#shadowRoot.querySelector('a').setAttribute('hidden','hidden')
+                        this.#shadowRoot.querySelector('#tPulsar').setAttribute('hidden','hidden')
                     }
                     
                     break;
@@ -189,6 +193,43 @@ export default class FormOrienta extends HTMLElement{
 
             }
         })
+    }
+
+    reccogerNotasFaseEspecifica(){
+        const notasInp = this.#shadowRoot.querySelectorAll('.notaAsignatura')
+        const notaFG = this.#shadowRoot.querySelector('.notaFG').value
+        const notaBach = this.#shadowRoot.querySelector('.notaBch').value
+        const notas=[];
+
+        if(notaBach != ''){
+            notas.push({'bachillerato': parseFloat(notaBach)})
+        }
+
+        if(notaFG != ''){
+            notas.push({'faseGeneral': parseFloat(notaFG)})
+        }
+
+        notasInp.forEach(nota => {
+            if(nota.value != ''){
+                notas.push({'faseEspecifica':parseFloat(nota.value)})
+            }
+        });
+
+        return notas;
+            
+    }
+
+    calcularEBAU(notas){
+        let notaEsp=0;
+
+        for (const nota of notas) {
+            if(nota.faseEspecifica){
+                notaEsp += nota.faseEspecifica*0.2;
+            }
+        }
+        const notaEBAU = notaEsp + (0.6*notas[0].bachillerato) + (0.4*notas[1].faseGeneral)
+        return notaEBAU
+
     }
 }
 

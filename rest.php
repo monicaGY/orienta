@@ -9,53 +9,55 @@ $password = "";
 $conn = new PDO("mysql:host=$host;dbname=$dbname",$username,$password);
 
 
-if($_GET){
+if(isset($_GET)){
+    if (isset($_GET['universidades'])) {
+        $consulta = 'SELECT nombre FROM `universidad`;';
 
-    if (isset($_GET['universidad'])) {
-        $consulta = 'SELECT DISTINCT(Universidad) FROM `corte`;';
-    }
-    if (isset($_GET['comunidad'])) {
-        $consulta = 'SELECT DISTINCT(Comunidad) FROM `materias`;';
-    }
-
-    if(isset($_GET['materia'])){
+    }elseif(isset($_GET['materias'])){
         $consulta = 'SELECT DISTINCT(nombre) FROM `materias`;';
-    }
 
-    if(!empty($_GET['universidad'])){
-        $consulta = "SELECT titulo,N_Corte FROM `corte` where Universidad LIKE '%".$_GET['universidad']."%';";
+    }elseif (isset($_GET['comunidades'])) {
+        $consulta = 'SELECT * FROM `ccaa`;';
 
-    }
-
-    if(!empty($_GET['facultad'])){
-        $consulta = "SELECT titulo,N_Corte FROM `corte`where centro LIKE '%". $_GET['facultad']."%';";
-
+    }elseif(isset($_GET['grados'])){
+        $consulta = 'SELECT DISTINCT(Titulo) FROM `grado`;';
     }
     
-    if(!empty($_GET['grado'])){
+    
+    if (isset($_GET['codComunidad']) && isset($_GET['grado'])) {
+        // ccaa.Nombre, universidad.Nombre, grado.Titulo,grado.N_Corte 
+        $consulta='SELECT ccaa.Nombre AS comunidad, universidad.Nombre, grado.Titulo,grado.N_Corte FROM universidad
+            INNER JOIN grado ON grado.Cod_uni =universidad.Codigo
+            INNER JOIN ccaa ON ccaa.Codigo=universidad.Cod_comunidad 
+            WHERE ccaa.Codigo="'.$_GET['codComunidad'].'" && grado.Titulo="'.$_GET['grado'].'"';
+        
+    }elseif(!empty($_GET['comunidad'])){
+        $consulta = 'SELECT materias.Nombre FROM `materias` INNER JOIN ccaa ON ccaa.Codigo = materias.Comunidad WHERE ccaa.Codigo="'.$_GET['comunidad'].'"';
+    
+    }elseif(!empty($_GET['universidad'])){
+        $consulta = "SELECT titulo,N_Corte FROM `corte` where Universidad LIKE '%".$_GET['universidad']."%';";
+
+    }elseif(!empty($_GET['facultad'])){
+        $consulta = "SELECT titulo,N_Corte FROM `corte`where centro LIKE '%". $_GET['facultad']."%';";
+
+    }elseif(!empty($_GET['grado'])){
         $consulta = "SELECT titulo,N_Corte FROM `corte`where titulo LIKE '%". $_GET['grado']."%';";
 
-    }
-
-    if(!empty($_GET['universidad']) && !empty($_GET['facultad'])){
+    }elseif(!empty($_GET['universidad']) && !empty($_GET['facultad'])){
+        
         $consulta = "SELECT titulo,N_Corte FROM `corte`where centro LIKE '%". $_GET['facultad']."%' && Universidad LIKE '%". $_GET['universidad']."%';";
 
-    }
-
-    if(!empty($_GET['universidad']) && !empty($_GET['grado'])){
+    }elseif(!empty($_GET['universidad']) && !empty($_GET['grado'])){
         $consulta = "SELECT titulo,N_Corte FROM `corte`where Titulo LIKE '%". $_GET['grado']."%' && Universidad LIKE '%". $_GET['universidad']."%';";
 
-    }
+    }// }elseif(!empty($_GET['facultad']) && !empty($_GET['grado'])){
+    //     $consulta = "SELECT titulo,Centro,N_Corte FROM `corte`where centro LIKE '%". $_GET['facultad']."%' && Titulo LIKE '%". $_GET['grado']."%';";
 
-    if(!empty($_GET['facultad']) && !empty($_GET['grado'])){
-        $consulta = "SELECT titulo,Centro,N_Corte FROM `corte`where centro LIKE '%". $_GET['facultad']."%' && Titulo LIKE '%". $_GET['grado']."%';";
+    // }elseif(!empty($_GET['facultad']) && !empty($_GET['grado']) && !empty($_GET['universidad'])){
+    //     $consulta = "SELECT Universidad,titulo,Centro,N_Corte FROM `corte`where centro LIKE '%". $_GET['facultad']."%' && Titulo LIKE '%". $_GET['grado']."%' && Universidad LIKE '%". $_GET['universidad']."%';";
 
-    }
-
-    if(!empty($_GET['facultad']) && !empty($_GET['grado']) && !empty($_GET['universidad'])){
-        $consulta = "SELECT Universidad,titulo,Centro,N_Corte FROM `corte`where centro LIKE '%". $_GET['facultad']."%' && Titulo LIKE '%". $_GET['grado']."%' && Universidad LIKE '%". $_GET['universidad']."%';";
-
-    }
+    // }
+    
 
     $consulta= $conn->prepare($consulta);
 
