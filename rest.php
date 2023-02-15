@@ -8,7 +8,6 @@ $username = "root";
 $password = "";
 $conn = new PDO("mysql:host=$host;dbname=$dbname",$username,$password);
 
-
 if(isset($_GET)){
     if (isset($_GET['universidades'])) {
         $consulta = 'SELECT nombre FROM `universidad`;';

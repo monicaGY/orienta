@@ -1,13 +1,14 @@
 class OrientaInformacion extends HTMLElement{
+
     #template=`
-    <h1>Tu nota es: </h1>
+    <h1></h1>
         <form>
         <h2>Elige tu universidad</h2>
         <fieldset>
         <legend>Comunidades</legend>
         <div class="tDivComunidades"></div>
         <br>
-        <select id='selGrado'>
+        <select id='selGrado' multiple>
                 <option disabled selected>-- Selecciona grado--</option>
         </select>
 
@@ -34,13 +35,22 @@ class OrientaInformacion extends HTMLElement{
         super();
         this.#shadowRoot = this.attachShadow({ mode: 'open' });
         this.#shadowRoot.innerHTML = this.#template;
+        
     }
 
+    notaEBAU(){
+        const params = new URLSearchParams(window.location.search);
+        const notaEBAU = params.get('notaEBAU');
+        this.#shadowRoot.querySelector('h1').innerText=`TU NOTA DE EBAU ES: ${notaEBAU}`
+    }
+
+
     async connectedCallback() {
+        this.notaEBAU()
         await this.construirCheckboxsComunidades()
         await this.construirSelectModulos()
         this.mostrarUniversidades()
-        
+
     }
 
      async construirSelectModulos(){
@@ -65,6 +75,7 @@ class OrientaInformacion extends HTMLElement{
     async construirCheckboxsComunidades(){
         const response = await fetch('http://localhost/00_universidad/rest.php?comunidades')
         const data = await response.json()
+
         const nDivComunidades = this.#shadowRoot.querySelector('.tDivComunidades')
         data.forEach(d => {
             const nLabCom = document.createElement('label')
@@ -90,7 +101,9 @@ class OrientaInformacion extends HTMLElement{
             const nInpComunidades = this.#shadowRoot.querySelectorAll('input:checked')
             const nTbBd = this.#shadowRoot.querySelector('#tTbBody')
             const grado = this.#shadowRoot.querySelector('#selGrado').value
+            // const grados = this.#shadowRoot.querySelectorAll('option:checked')
 
+            console.log(grados)
             while(nTbBd.hasChildNodes()){
                 nTbBd.removeChild(nTbBd.firstChild)
             }
