@@ -92,7 +92,6 @@ export default class FormOrienta extends HTMLElement{
         
     </fieldset>
 
-    <div id="tDivMensaje"></div>
     `
 
     #shadowRoot

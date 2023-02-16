@@ -20,6 +20,28 @@ if(isset($_GET)){
 
     }elseif(isset($_GET['grados'])){
         $consulta = 'SELECT DISTINCT(Titulo) FROM `grado`;';
+
+    }elseif(isset($_GET['com']) && isset($_GET['grad']) && $_GET['nota']){
+
+        $consulta='SELECT ccaa.Nombre AS comunidad, universidad.Nombre, grado.Titulo,grado.N_Corte FROM universidad
+        INNER JOIN grado ON grado.Cod_uni =universidad.Codigo
+        INNER JOIN ccaa ON ccaa.Codigo=universidad.Cod_comunidad
+        WHERE grado.N_Corte <='.$_GET['nota'];
+            
+    }elseif(isset($_GET['com']) && isset($_GET['nota'])){
+
+        $consulta='SELECT ccaa.Nombre AS comunidad, universidad.Nombre, grado.Titulo,grado.N_Corte FROM universidad
+        INNER JOIN grado ON grado.Cod_uni =universidad.Codigo
+        INNER JOIN ccaa ON ccaa.Codigo=universidad.Cod_comunidad
+        WHERE grado.N_Corte <='.$_GET['nota'] .'&& ccaa.Codigo="'.$_GET['com'].'"';
+            
+    }elseif(isset($_GET['grad']) && isset($_GET['nota'])){
+
+        $consulta='SELECT ccaa.Nombre AS comunidad, universidad.Nombre, grado.Titulo,grado.N_Corte FROM universidad
+        INNER JOIN grado ON grado.Cod_uni =universidad.Codigo
+        INNER JOIN ccaa ON ccaa.Codigo=universidad.Cod_comunidad
+        WHERE grado.N_Corte <='.$_GET['nota'] .'&& grado.Titulo ="'.$_GET['grad'].'"';
+            
     }
     
     
