@@ -23,12 +23,12 @@ if(isset($_GET)){
     }
     
     
-    if (isset($_GET['codComunidad']) && isset($_GET['grado'])) {
+    if (isset($_GET['codComunidad']) && isset($_GET['grado']) && $_GET['nota']) {
         // ccaa.Nombre, universidad.Nombre, grado.Titulo,grado.N_Corte 
         $consulta='SELECT ccaa.Nombre AS comunidad, universidad.Nombre, grado.Titulo,grado.N_Corte FROM universidad
             INNER JOIN grado ON grado.Cod_uni =universidad.Codigo
             INNER JOIN ccaa ON ccaa.Codigo=universidad.Cod_comunidad 
-            WHERE ccaa.Codigo="'.$_GET['codComunidad'].'" && grado.Titulo="'.$_GET['grado'].'"';
+            WHERE ccaa.Codigo="'.$_GET['codComunidad'].'" && grado.Titulo="'.$_GET['grado'].'" && grado.N_Corte <='.$_GET['nota'];
         
     }elseif(!empty($_GET['comunidad'])){
         $consulta = 'SELECT materias.Nombre FROM `materias` INNER JOIN ccaa ON ccaa.Codigo = materias.Comunidad WHERE ccaa.Codigo="'.$_GET['comunidad'].'"';

@@ -20,8 +20,8 @@ class OrientaInformacion extends HTMLElement{
             <thead>
                 <tr>
                     <td>Universidad</td>
-                    <td>Nota De Corte</td>
                     <td>Grado</td>
+                    <td>Nota De Corte</td>
                     <td>Comunidad</td>
                 </tr>
             </thead>
@@ -35,13 +35,16 @@ class OrientaInformacion extends HTMLElement{
         super();
         this.#shadowRoot = this.attachShadow({ mode: 'open' });
         this.#shadowRoot.innerHTML = this.#template;
-        
+        const notaEBAU = this.notaEBAU()
+        console.log(notaEBAU)
+        this.#shadowRoot.querySelector('h1').innerText=`TU NOTA DE EBAU ES: ${notaEBAU}`
+
     }
 
     notaEBAU(){
         const params = new URLSearchParams(window.location.search);
         const notaEBAU = params.get('notaEBAU');
-        this.#shadowRoot.querySelector('h1').innerText=`TU NOTA DE EBAU ES: ${notaEBAU}`
+        return notaEBAU;
     }
 
 
@@ -100,41 +103,45 @@ class OrientaInformacion extends HTMLElement{
         this.#shadowRoot.querySelector('#tBtnEnviar').addEventListener('click', e => {
             const nInpComunidades = this.#shadowRoot.querySelectorAll('input:checked')
             const nTbBd = this.#shadowRoot.querySelector('#tTbBody')
-            const grado = this.#shadowRoot.querySelector('#selGrado').value
-            // const grados = this.#shadowRoot.querySelectorAll('option:checked')
+            const grados = this.#shadowRoot.querySelectorAll('option:checked')
+            const notaEBAU = this.notaEBAU()
 
-            console.log(grados)
             while(nTbBd.hasChildNodes()){
                 nTbBd.removeChild(nTbBd.firstChild)
             }
 
 
-            nInpComunidades.forEach(async comunidad => {
-                const response = await fetch(`http://localhost/00_universidad/rest.php?codComunidad=${comunidad.value}&grado=${grado}`)
+            nInpComunidades.forEach( comunidad => {
 
-                const data = await response.json()
+                grados.forEach( async g => {
+                    const response = await fetch(`http://localhost/00_universidad/rest.php?codComunidad=${comunidad.value}&grado=${g.value}&nota=${notaEBAU}`)
 
-                data.forEach(d => {
-                    const nTr = document.createElement('tr')
-                    nTbBd.appendChild(nTr)
+                    const data = await response.json()
+    
+                    data.forEach(d => {
+                        const nTr = document.createElement('tr')
+                        nTbBd.appendChild(nTr)
+    
+                        const nTdUniversidad = document.createElement('td')
+                        nTr.appendChild(nTdUniversidad)
+    
+                        const nTdTitulo = document.createElement('td')
+                        nTr.appendChild(nTdTitulo)
+    
+                        const nTdNota = document.createElement('td')
+                        nTr.appendChild(nTdNota)
+    
+                        const nTdComunidad = document.createElement('td')
+                        nTr.appendChild(nTdComunidad)
+    
+                        nTdUniversidad.innerText=d.Nombre
+                        nTdTitulo.innerText=d.Titulo
+                        nTdNota.innerText=d.N_Corte
+                        nTdComunidad.innerText=d.comunidad
+    
 
-                    const nTdUniversidad = document.createElement('td')
-                    nTr.appendChild(nTdUniversidad)
-
-                    const nTdTitulo = document.createElement('td')
-                    nTr.appendChild(nTdTitulo)
-
-                    const nTdNota = document.createElement('td')
-                    nTr.appendChild(nTdNota)
-
-                    const nTdComunidad = document.createElement('td')
-                    nTr.appendChild(nTdComunidad)
-
-                    nTdUniversidad.innerText=d.Nombre
-                    nTdTitulo.innerText=d.Titulo
-                    nTdNota.innerText=d.N_Corte
-                    nTdComunidad.innerText=d.comunidad
-
+                })
+                
 
                 });
 
