@@ -99,7 +99,7 @@ class OrientaInformacion extends HTMLElement{
      async construirSelectModulos(){
          try{
 
-             const response=await fetch('http://localhost/00_universidad/rest.php?grados')
+             const response=await fetch('http://localhost/00_universidad/rest.php?grados',{ method: 'GET' })
              const data = await response.json()
              const nSelect = this.#shadowRoot.querySelector('#selGrado')
              data.forEach(data => {
@@ -116,7 +116,7 @@ class OrientaInformacion extends HTMLElement{
     }
 
     async construirCheckboxsComunidades(){
-        const response = await fetch('http://localhost/00_universidad/rest.php?comunidades')
+        const response = await fetch('http://localhost/00_universidad/rest.php?comunidades',{ method: 'GET' })
         const data = await response.json()
 
         const nDivComunidades = this.#shadowRoot.querySelector('.tDivComunidades')
@@ -149,10 +149,6 @@ class OrientaInformacion extends HTMLElement{
             const nTbBd = this.#shadowRoot.querySelector('#tTbBody')
             const notaEBAU = this.notaEBAU()
 
-            // if(grados[0].value){
-            //     console.log('relleno')
-
-            // }
             while(nTbBd.hasChildNodes()){
                 nTbBd.removeChild(nTbBd.firstChild)
             }
@@ -191,12 +187,15 @@ class OrientaInformacion extends HTMLElement{
                 }
             }
 
-            else{
-                this.#shadowRoot.querySelector('#tDivMensaje').removeAttribute('hidden')
-                setTimeout(() => {
-                    this.#shadowRoot.querySelector('#tDivMensaje').setAttribute('hidden','hidden')
-                }, 2000);
-            }
+            setTimeout(() => {
+                if(!nTbBd.hasChildNodes()){
+                    this.#shadowRoot.querySelector('#tDivMensaje').removeAttribute('hidden')
+                    setTimeout(() => {
+                        this.#shadowRoot.querySelector('#tDivMensaje').setAttribute('hidden','hidden')
+                    }, 4000);
+                }    
+            }, 2000);
+            
         })
     }
 
@@ -207,7 +206,7 @@ class OrientaInformacion extends HTMLElement{
         nInpComunidades.forEach( comunidad => {
 
             grados.forEach( async g => {
-                const response = await fetch(`http://localhost/00_universidad/rest.php?codComunidad=${comunidad.value}&grado=${g.value}&nota=${notaEBAU}`)
+                const response = await fetch(`http://localhost/00_universidad/rest.php?codComunidad=${comunidad.value}&grado=${g.value}&nota=${notaEBAU}`,{ method: 'GET' })
 
                 const data = await response.json()
 
@@ -243,7 +242,7 @@ class OrientaInformacion extends HTMLElement{
     async mostrarComunidadesYgrados(nota){
         const nTbBd = this.#shadowRoot.querySelector('#tTbBody')
 
-        const response = await fetch(`http://localhost/00_universidad/rest.php?com&grad&nota=${nota}`)
+        const response = await fetch(`http://localhost/00_universidad/rest.php?com&grad&nota=${nota}`,{ method: 'GET' })
         const data = await response.json()
 
         data.forEach(d => {
@@ -273,7 +272,7 @@ class OrientaInformacion extends HTMLElement{
     async mostrarComunidadYgrado(nota, comunidad, grado){
         const nTbBd = this.#shadowRoot.querySelector('#tTbBody')
 
-        const response = await fetch(`http://localhost/00_universidad/rest.php?codComunidad=${comunidad}&grado=${grado}&nota=${nota}`)
+        const response = await fetch(`http://localhost/00_universidad/rest.php?codComunidad=${comunidad}&grado=${grado}&nota=${nota}`,{ method: 'GET' })
         const data = await response.json()
 
         data.forEach(d => {
@@ -301,12 +300,14 @@ class OrientaInformacion extends HTMLElement{
             
 
         });
+
+        
     }
     mostrarComunidadesSeleccionadas(comunidades,nota){
         const nTbBd = this.#shadowRoot.querySelector('#tTbBody')
 
         comunidades.forEach(async comunidad => {
-            const response = await fetch(`http://localhost/00_universidad/rest.php?com=${comunidad.value}&nota=${nota}`)
+            const response = await fetch(`http://localhost/00_universidad/rest.php?com=${comunidad.value}&nota=${nota}`,{ method: 'GET' })
             const data = await response.json()
     
             data.forEach(d => {
@@ -338,7 +339,7 @@ class OrientaInformacion extends HTMLElement{
     async mostrarComunidadSeleccionada(comunidad,nota){
         const nTbBd = this.#shadowRoot.querySelector('#tTbBody')
 
-        const response = await fetch(`http://localhost/00_universidad/rest.php?com=${comunidad[0].value}&nota=${nota}`)
+        const response = await fetch(`http://localhost/00_universidad/rest.php?com=${comunidad[0].value}&nota=${nota}`,{ method: 'GET' })
         const data = await response.json()
 
         data.forEach(d => {
@@ -366,7 +367,7 @@ class OrientaInformacion extends HTMLElement{
     }
 
     async mostrarGradoSelecionado(grado,nota){
-        const response = await fetch(`http://localhost/00_universidad/rest.php?grad=${grado[0].value}&nota=${nota}`)
+        const response = await fetch(`http://localhost/00_universidad/rest.php?grad=${grado[0].value}&nota=${nota}`,{ method: 'GET' })
         const data = await response.json()
         const nTbBd = this.#shadowRoot.querySelector('#tTbBody')
 
@@ -397,7 +398,7 @@ class OrientaInformacion extends HTMLElement{
         const nTbBd = this.#shadowRoot.querySelector('#tTbBody')
 
         grados.forEach(async g => {
-            const response = await fetch(`http://localhost/00_universidad/rest.php?grad=${g.value}&nota=${nota}`)
+            const response = await fetch(`http://localhost/00_universidad/rest.php?grad=${g.value}&nota=${nota}`,{ method: 'GET' })
             const data = await response.json()
 
             data.forEach(d => {

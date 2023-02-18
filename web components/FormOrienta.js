@@ -31,15 +31,22 @@ export default class FormOrienta extends HTMLElement{
         font-weight: bold;
         text-align:center;
     }
+    .tDivMensaje{
+        text-align:center;
+        background-color: black;
+        color:white;
+        text-transform:uppercase;
+        padding:5px;
+    }
     </style>
 
     <h1>Calcular nota EBAU</h1>
     <fieldset class="datos-academicos">
         <legend>Datos académidos</legend>
         <label>Nota media de bachillerato</label>
-        <input type="number" class='notaBch' value='3'>
+        <input type="number" class='notaBch' min="5" max="10" placeholder="* Campo obligatorio">
         <label>Nota fase general EBAU</label>
-        <input type="number" class="notaFG" value='6'>
+        <input type="number" class="notaFG" min="1" max="10" placeholder="* Campo obligatorio">
     </fieldset>
     <fieldset class="datos-ebau">
         1 - Selecciona comunidad
@@ -57,14 +64,14 @@ export default class FormOrienta extends HTMLElement{
                 <select class='selMaterias' >
                         <option disabled selected>-- Selecciona materia --</option>
                 </select>
-                <input type='number' class="notaAsignatura" value='7' placeholder='Introduce tu nota'>
+                <input type='number' class="notaAsignatura"  placeholder='Introduce tu nota'>
             </div>
 
             <div class="materia" hidden='hidden'> 
                 <select class='selMaterias' >
                         <option disabled selected>-- Selecciona materia --</option>
                 </select>
-                <input type='number' class="notaAsignatura" value="3" placeholder='Introduce tu nota'>
+                <input type='number' class="notaAsignatura" placeholder='Introduce tu nota'>
             </div>
             <div class="materia" hidden='hidden'> 
                 <select class='selMaterias' >
@@ -91,6 +98,8 @@ export default class FormOrienta extends HTMLElement{
         <input type="submit" id="tInpEnviar">
         
     </fieldset>
+    <div class="tDivMensaje" hidden='hidden'>Los campos de tus datos académicos son obligatorios</div>
+
 
     `
 
@@ -108,6 +117,8 @@ export default class FormOrienta extends HTMLElement{
 
         this.#shadowRoot.querySelector('#selComunidades').addEventListener('change', async e => {
             await this.construirSelectMaterias(e.target.value)
+
+
             this.añadirAsignaturas()
         })
 
@@ -115,14 +126,23 @@ export default class FormOrienta extends HTMLElement{
         this.#shadowRoot.querySelector('#tInpEnviar').addEventListener('click', e => {
             const notas = this.reccogerNotasFaseEspecifica();
             const notaEBAU = this.calcularEBAU(notas);
-            // this.#shadowRoot.querySelector('#tDivMensaje').textContent=`Su nota de EBAU es: ${notaEBAU}`
-            setTimeout(() => {
+
+            if(!notaEBAU){
+                this.#shadowRoot.querySelector('.tDivMensaje').removeAttribute('hidden')
+                setTimeout(() => {
+                    this.#shadowRoot.querySelector('.tDivMensaje').setAttribute('hidden','hidden')
+                }, 4000);
+            }else{
                 window.location = `./view/orientaInformacion.html?notaEBAU=${notaEBAU}`;
-            }, 3000);
+
+            }
+            
         })
 
 
     }
+
+
     async construirSelectComunidades(){
         try{
             const response = await fetch("http://localhost/00_universidad/rest.php?comunidades")
@@ -141,10 +161,6 @@ export default class FormOrienta extends HTMLElement{
             console.error(`Recuperar Comunidad ${error}`)
         }
     }
-
-
-    
-
 
     async construirSelectMaterias(comunidad){
         try{
@@ -219,15 +235,21 @@ export default class FormOrienta extends HTMLElement{
     }
 
     calcularEBAU(notas){
-        let notaEsp=0;
 
-        for (const nota of notas) {
-            if(nota.faseEspecifica){
-                notaEsp += nota.faseEspecifica*0.2;
+        try{
+            let notaEsp=0;
+            
+            for (const nota of notas) {
+                if(nota.faseEspecifica){
+                    notaEsp += nota.faseEspecifica*0.2;
+                }
             }
+            const notaEBAU = notaEsp + (0.6*notas[0].bachillerato) + (0.4*notas[1].faseGeneral)
+            return notaEBAU
+        }catch{
+            return null
         }
-        const notaEBAU = notaEsp + (0.6*notas[0].bachillerato) + (0.4*notas[1].faseGeneral)
-        return notaEBAU
+    
 
     }
 }
